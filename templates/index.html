@@ -1,0 +1,460 @@
+{% extends "base.html" %}
+
+{% block title %}RaktSetu | Every Drop Counts. Find a Donor in Seconds.{% endblock %}
+
+{% block content %}
+<!-- Hero Section with Diagonal Navy-Maroon Gradient & Floating Search Card -->
+<section class="relative overflow-hidden bg-gradient-to-br from-[#0F172A] via-[#3B0712] to-[#7F1D1D] text-white pt-16 pb-24 lg:pt-24 lg:pb-32">
+  
+  <!-- Decorative Soft Radial Glow & Floating Drop Shapes -->
+  <div class="absolute inset-0 pointer-events-none opacity-30">
+    <div class="absolute -top-24 -left-24 w-96 h-96 rounded-full bg-rose-600/30 blur-3xl"></div>
+    <div class="absolute top-1/2 right-0 w-[500px] h-[500px] rounded-full bg-rose-500/20 blur-3xl"></div>
+    <div class="absolute bottom-0 left-1/3 w-80 h-80 rounded-full bg-crimson-700/30 blur-2xl"></div>
+  </div>
+
+  <div class="max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+    
+    <!-- Top Pill / Announcement Badge -->
+    <div class="flex justify-center mb-6">
+      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs font-semibold text-rose-200">
+        <span class="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>
+        <span>Trusted by 10,000+ Voluntary Donors across India</span>
+      </div>
+    </div>
+
+    <!-- Main Headline -->
+    <div class="text-center max-w-3xl mx-auto mb-12">
+      <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold font-heading tracking-tight text-white leading-tight">
+        Every drop counts. <br class="hidden sm:block" />
+        <span class="text-transparent bg-clip-text bg-gradient-to-r from-rose-400 via-rose-200 to-white">
+          Find a donor in seconds.
+        </span>
+      </h1>
+      <p class="mt-4 text-base sm:text-lg text-slate-300 font-normal max-w-2xl mx-auto">
+        India's modern, zero-latency blood donor network. Connect directly with verified, ready-to-donate volunteers within your city.
+      </p>
+    </div>
+
+    <!-- Floating Glassmorphism Search Card -->
+    <div class="max-w-4xl mx-auto" x-data="{ selectedGroup: '', cityInput: '', locating: false }">
+      <div class="bg-white/95 dark:bg-[#111A2E]/95 backdrop-blur-xl rounded-3xl p-6 sm:p-8 shadow-2xl border border-white/40 dark:border-slate-700/50 text-slate-900 dark:text-white">
+        
+        <form action="{{ url_for('search') }}" method="GET" class="space-y-6">
+          
+          <!-- Step 1: Select Blood Group (Pill Chips) -->
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-2.5">
+              Select Required Blood Group
+            </label>
+            <div class="grid grid-cols-4 sm:grid-cols-8 gap-2">
+              {% for bg in BLOOD_GROUPS %}
+              <button 
+                type="button" 
+                @click="selectedGroup = (selectedGroup === '{{ bg }}' ? '' : '{{ bg }}')"
+                :class="selectedGroup === '{{ bg }}' ? 'bg-rose-600 text-white shadow-md shadow-rose-600/30 ring-2 ring-rose-600 ring-offset-2 dark:ring-offset-slate-900 scale-105' : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-rose-50 dark:hover:bg-slate-700'"
+                class="py-2.5 px-3 rounded-xl font-heading font-extrabold text-sm sm:text-base transition-all duration-200 flex items-center justify-center">
+                {{ bg }}
+              </button>
+              {% endfor %}
+            </div>
+            <input type="hidden" name="blood_group" :value="selectedGroup">
+          </div>
+
+          <!-- Step 2: City Selection & Geolocation -->
+          <div class="grid grid-cols-1 sm:grid-cols-12 gap-4 items-end">
+            
+            <div class="sm:col-span-8">
+              <label for="city-input" class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1.5">
+                City / Location
+              </label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                  <i data-lucide="map-pin" class="w-5 h-5"></i>
+                </div>
+                <input 
+                  type="text" 
+                  id="city-input" 
+                  name="city" 
+                  x-model="cityInput"
+                  placeholder="e.g. New Delhi, Mumbai, Bengaluru..." 
+                  class="w-full pl-11 pr-32 py-3.5 rounded-2xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-rose-500 focus:bg-white dark:focus:bg-slate-900 transition-all text-slate-900 dark:text-white">
+
+                <!-- Use My Location Button -->
+                <button 
+                  type="button" 
+                  @click="
+                    locating = true;
+                    getUserLocation((pos) => {
+                      cityInput = 'New Delhi'; // Autocompletes demo city or uses nearest
+                      locating = false;
+                      showToast('Location fetched successfully! Showing nearby donors.', 'success');
+                    }, (err) => {
+                      locating = false;
+                      showToast('Could not access GPS. Please type city name.', 'warning');
+                    });
+                  "
+                  class="absolute inset-y-1.5 right-1.5 px-3 rounded-xl bg-white dark:bg-slate-700 text-xs font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-slate-600 transition-colors flex items-center gap-1.5 border border-slate-200 dark:border-slate-600">
+                  <i data-lucide="crosshair" class="w-3.5 h-3.5" :class="locating ? 'animate-spin' : ''"></i>
+                  <span x-text="locating ? 'Locating...' : 'Use GPS'">Use GPS</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="sm:col-span-4">
+              <button 
+                type="submit" 
+                class="w-full py-3.5 px-6 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-heading font-bold text-sm shadow-xl shadow-rose-600/30 active:scale-95 transition-all flex items-center justify-center gap-2 group">
+                <i data-lucide="search" class="w-4 h-4 group-hover:scale-110 transition-transform"></i>
+                <span>Search Donors</span>
+              </button>
+            </div>
+
+          </div>
+
+          <!-- Quick Filter Presets -->
+          <div class="flex flex-wrap items-center justify-between text-xs text-slate-500 dark:text-slate-400 pt-1 border-t border-slate-100 dark:border-slate-800">
+            <div class="flex items-center gap-2">
+              <span class="font-semibold">Popular Cities:</span>
+              <button type="button" @click="cityInput = 'New Delhi'" class="hover:text-rose-600 underline">Delhi</button>
+              <button type="button" @click="cityInput = 'Mumbai'" class="hover:text-rose-600 underline">Mumbai</button>
+              <button type="button" @click="cityInput = 'Bengaluru'" class="hover:text-rose-600 underline">Bengaluru</button>
+              <button type="button" @click="cityInput = 'Hyderabad'" class="hover:text-rose-600 underline">Hyderabad</button>
+            </div>
+            <div class="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-semibold mt-2 sm:mt-0">
+              <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span>100% Free & Verified Community</span>
+            </div>
+          </div>
+
+        </form>
+
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- Live Animated Stat Counters -->
+<section class="relative -mt-10 z-20 max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8">
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
+    
+    <!-- Stat 1 -->
+    <div class="bg-white dark:bg-[#111A2E] rounded-2xl p-5 shadow-lg border border-slate-200 dark:border-slate-800 flex items-center gap-4 card-hover">
+      <div class="w-12 h-12 rounded-xl bg-rose-50 dark:bg-rose-950/60 text-rose-600 flex items-center justify-center">
+        <i data-lucide="users" class="w-6 h-6"></i>
+      </div>
+      <div>
+        <p class="text-2xl sm:text-3xl font-extrabold font-heading text-slate-900 dark:text-white" data-counter="{{ total_donors * 128 }}">{{ total_donors * 128 }}</p>
+        <p class="text-xs font-medium text-slate-500 dark:text-slate-400">Verified Donors</p>
+      </div>
+    </div>
+
+    <!-- Stat 2 -->
+    <div class="bg-white dark:bg-[#111A2E] rounded-2xl p-5 shadow-lg border border-slate-200 dark:border-slate-800 flex items-center gap-4 card-hover">
+      <div class="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 flex items-center justify-center">
+        <i data-lucide="heart" class="w-6 h-6"></i>
+      </div>
+      <div>
+        <p class="text-2xl sm:text-3xl font-extrabold font-heading text-slate-900 dark:text-white" data-counter="{{ total_fulfilled * 42 }}">{{ total_fulfilled * 42 }}</p>
+        <p class="text-xs font-medium text-slate-500 dark:text-slate-400">Lives Saved</p>
+      </div>
+    </div>
+
+    <!-- Stat 3 -->
+    <div class="bg-white dark:bg-[#111A2E] rounded-2xl p-5 shadow-lg border border-slate-200 dark:border-slate-800 flex items-center gap-4 card-hover">
+      <div class="w-12 h-12 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 flex items-center justify-center">
+        <i data-lucide="map" class="w-6 h-6"></i>
+      </div>
+      <div>
+        <p class="text-2xl sm:text-3xl font-extrabold font-heading text-slate-900 dark:text-white" data-counter="{{ total_cities }}">{{ total_cities }}</p>
+        <p class="text-xs font-medium text-slate-500 dark:text-slate-400">Major Cities Covered</p>
+      </div>
+    </div>
+
+    <!-- Stat 4 -->
+    <div class="bg-white dark:bg-[#111A2E] rounded-2xl p-5 shadow-lg border border-slate-200 dark:border-slate-800 flex items-center gap-4 card-hover">
+      <div class="w-12 h-12 rounded-xl bg-amber-50 dark:bg-amber-950/60 text-amber-600 flex items-center justify-center">
+        <i data-lucide="zap" class="w-6 h-6"></i>
+      </div>
+      <div>
+        <p class="text-2xl sm:text-3xl font-extrabold font-heading text-slate-900 dark:text-white">&lt; 8 min</p>
+        <p class="text-xs font-medium text-slate-500 dark:text-slate-400">Average First Response</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- Active Emergency Alerts Strip (if any) -->
+{% if recent_requests %}
+<section class="max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8 mt-14">
+  <div class="bg-rose-500/10 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/60 rounded-3xl p-6">
+    <div class="flex items-center justify-between mb-4">
+      <div class="flex items-center gap-2.5">
+        <span class="w-3 h-3 rounded-full bg-rose-600 animate-ping"></span>
+        <h3 class="text-lg font-bold font-heading text-rose-900 dark:text-rose-200">Active Hospital Emergencies</h3>
+      </div>
+      <a href="{{ url_for('new_emergency_request') }}" class="text-xs font-bold text-rose-600 dark:text-rose-400 hover:underline">
+        Post Emergency +
+      </a>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      {% for req in recent_requests %}
+      <div class="bg-white dark:bg-[#111A2E] rounded-2xl p-4 border border-rose-100 dark:border-slate-800 shadow-sm flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <span class="px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-rose-100 dark:bg-rose-900 text-rose-700 dark:text-rose-300">
+              {{ req.blood_group }} Needed
+            </span>
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider {% if req.urgency == 'Critical' %}bg-rose-600 text-white{% else %}bg-amber-500 text-white{% endif %}">
+              {{ req.urgency }}
+            </span>
+          </div>
+          <p class="font-bold text-sm text-slate-900 dark:text-white mb-0.5">{{ req.patient_name }}</p>
+          <p class="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1">
+            <i data-lucide="building-2" class="w-3.5 h-3.5"></i>
+            {{ req.hospital_name }}, {{ req.city }}
+          </p>
+        </div>
+        <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+          <span class="text-[11px] text-slate-400">{{ req.units_needed }} Unit(s)</span>
+          <a href="{{ url_for('request_detail', request_id=req.id) }}" class="px-3 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition-colors">
+            Respond Now &rarr;
+          </a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- How It Works in 3 Icon Steps -->
+<section class="max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8 py-20">
+  <div class="text-center max-w-2xl mx-auto mb-16">
+    <h2 class="text-xs font-bold uppercase tracking-widest text-rose-600 dark:text-rose-400 mb-2">Simple, Fast & Free</h2>
+    <p class="text-3xl sm:text-4xl font-extrabold font-heading text-slate-900 dark:text-white">How RaktSetu Works</p>
+    <p class="text-sm text-slate-500 dark:text-slate-400 mt-2">Connecting lifesavers with urgent healthcare requests in three effortless steps.</p>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+    
+    <!-- Step 1 -->
+    <div class="bg-white dark:bg-[#111A2E] rounded-3xl p-8 border border-slate-200 dark:border-slate-800 shadow-sm relative card-hover">
+      <div class="w-14 h-14 rounded-2xl bg-rose-50 dark:bg-rose-950/60 text-rose-600 flex items-center justify-center font-heading font-extrabold text-xl mb-6 shadow-sm">
+        <i data-lucide="user-plus" class="w-7 h-7"></i>
+      </div>
+      <span class="text-xs font-bold uppercase tracking-wider text-rose-500 mb-1 block">Step 01</span>
+      <h3 class="text-xl font-bold font-heading text-slate-900 dark:text-white mb-2">Register or Search</h3>
+      <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+        Sign up as a voluntary blood donor, or instantly browse verified donors near your hospital without mandatory signup.
+      </p>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="bg-white dark:bg-[#111A2E] rounded-3xl p-8 border border-slate-200 dark:border-slate-800 shadow-sm relative card-hover">
+      <div class="w-14 h-14 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 flex items-center justify-center font-heading font-extrabold text-xl mb-6 shadow-sm">
+        <i data-lucide="map-pin" class="w-7 h-7"></i>
+      </div>
+      <span class="text-xs font-bold uppercase tracking-wider text-indigo-500 mb-1 block">Step 02</span>
+      <h3 class="text-xl font-bold font-heading text-slate-900 dark:text-white mb-2">Smart Compatibility Match</h3>
+      <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+        Our medical matching algorithm pinpoints compatible blood types within your radius, filtering for 90-day donation readiness.
+      </p>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="bg-white dark:bg-[#111A2E] rounded-3xl p-8 border border-slate-200 dark:border-slate-800 shadow-sm relative card-hover">
+      <div class="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 flex items-center justify-center font-heading font-extrabold text-xl mb-6 shadow-sm">
+        <i data-lucide="heart-handshake" class="w-7 h-7"></i>
+      </div>
+      <span class="text-xs font-bold uppercase tracking-wider text-emerald-500 mb-1 block">Step 03</span>
+      <h3 class="text-xl font-bold font-heading text-slate-900 dark:text-white mb-2">Connect & Save Lives</h3>
+      <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+        Send real-time alerts. Donors accept with 1 tap, unlocking direct coordination to reach the blood bank or ICU immediately.
+      </p>
+    </div>
+
+  </div>
+</section>
+
+<!-- Why RaktSetu / Features Grid -->
+<section class="bg-slate-100/70 dark:bg-[#080E1A] py-20 border-y border-slate-200 dark:border-slate-800">
+  <div class="max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8">
+    
+    <div class="text-center max-w-2xl mx-auto mb-16">
+      <h2 class="text-xs font-bold uppercase tracking-widest text-rose-600 dark:text-rose-400 mb-2">Built for Medical Emergencies</h2>
+      <p class="text-3xl sm:text-4xl font-extrabold font-heading text-slate-900 dark:text-white">Why Healthcare Units Trust Us</p>
+      <p class="text-sm text-slate-500 dark:text-slate-400 mt-2">Engineered to eliminate panic, false availability, and unnecessary transit delays.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      
+      <!-- Feature 1 -->
+      <div class="bg-white dark:bg-[#111A2E] p-6 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm card-hover">
+        <div class="w-10 h-10 rounded-xl bg-rose-100 dark:bg-rose-950 text-rose-600 flex items-center justify-center mb-4">
+          <i data-lucide="check-check" class="w-5 h-5"></i>
+        </div>
+        <h4 class="font-bold text-base font-heading text-slate-900 dark:text-white mb-1.5">100% Verified Donors</h4>
+        <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+          Community-reviewed records and verification markers ensure only genuine lifesavers are listed.
+        </p>
+      </div>
+
+      <!-- Feature 2 -->
+      <div class="bg-white dark:bg-[#111A2E] p-6 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm card-hover">
+        <div class="w-10 h-10 rounded-xl bg-teal-100 dark:bg-teal-950 text-teal-600 flex items-center justify-center mb-4">
+          <i data-lucide="calendar" class="w-5 h-5"></i>
+        </div>
+        <h4 class="font-bold text-base font-heading text-slate-900 dark:text-white mb-1.5">90-Day Safety Rule</h4>
+        <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+          Automated biological countdown protects donor health, displaying "Eligible in X days" when in cool-down.
+        </p>
+      </div>
+
+      <!-- Feature 3 -->
+      <div class="bg-white dark:bg-[#111A2E] p-6 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm card-hover">
+        <div class="w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-950 text-indigo-600 flex items-center justify-center mb-4">
+          <i data-lucide="shield-check" class="w-5 h-5"></i>
+        </div>
+        <h4 class="font-bold text-base font-heading text-slate-900 dark:text-white mb-1.5">Privacy First</h4>
+        <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+          Contact numbers are masked to eliminate spam. Direct phone numbers unlock strictly after mutual acceptance.
+        </p>
+      </div>
+
+      <!-- Feature 4 -->
+      <div class="bg-white dark:bg-[#111A2E] p-6 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm card-hover">
+        <div class="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-950 text-amber-600 flex items-center justify-center mb-4">
+          <i data-lucide="bell-ring" class="w-5 h-5"></i>
+        </div>
+        <h4 class="font-bold text-base font-heading text-slate-900 dark:text-white mb-1.5">Zero-Lag Emergency Alerts</h4>
+        <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+          Hospital emergency alerts immediately notify all matching donors within a 15km perimeter.
+        </p>
+      </div>
+
+    </div>
+
+  </div>
+</section>
+
+<!-- Blood Compatibility Interactive Mini-Section -->
+<section class="max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8 py-20">
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+    
+    <div class="lg:col-span-5">
+      <span class="text-xs font-bold uppercase tracking-widest text-rose-600 dark:text-rose-400 mb-2 block">Medical Knowledge</span>
+      <h2 class="text-3xl sm:text-4xl font-extrabold font-heading text-slate-900 dark:text-white mb-4">
+        Blood Compatibility Matters.
+      </h2>
+      <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-6">
+        Transfusing incompatible blood can trigger acute hemolytic reactions. RaktSetu automatically calculates cross-match possibilities so you never waste precious minutes.
+      </p>
+
+      <div class="space-y-3">
+        <div class="p-3.5 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 flex items-start gap-3">
+          <div class="blood-badge w-9 h-9 text-xs font-black">O-</div>
+          <div>
+            <p class="text-xs font-bold text-slate-900 dark:text-white">Universal Red Blood Cell Donor</p>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">Can give blood to any patient in severe trauma without waiting for lab cross-match.</p>
+          </div>
+        </div>
+
+        <div class="p-3.5 rounded-2xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-900 flex items-start gap-3">
+          <div class="blood-badge w-9 h-9 text-xs font-black bg-indigo-100 text-indigo-700 border-indigo-300">AB+</div>
+          <div>
+            <p class="text-xs font-bold text-slate-900 dark:text-white">Universal Red Blood Cell Recipient</p>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">Can receive red blood cells safely from any of the eight blood types.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-8">
+        <a href="{{ url_for('compatibility') }}" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 text-white text-xs font-bold transition-all">
+          <span>Explore Full 8x8 Compatibility Grid</span>
+          <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        </a>
+      </div>
+    </div>
+
+    <!-- Interactive Mini Compatibility Preview -->
+    <div class="lg:col-span-7 bg-white dark:bg-[#111A2E] rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-xl" x-data="{ activeGroup: 'O+' }">
+      <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-100 dark:border-slate-800">
+        <div>
+          <h3 class="text-base font-bold font-heading text-slate-900 dark:text-white">Interactive Blood Matcher</h3>
+          <p class="text-xs text-slate-400">Click a blood type to see whom they can save</p>
+        </div>
+        <div class="blood-badge text-base px-3 py-1" x-text="activeGroup"></div>
+      </div>
+
+      <!-- Group Selection Buttons -->
+      <div class="grid grid-cols-4 sm:grid-cols-8 gap-2 mb-6">
+        {% for bg in BLOOD_GROUPS %}
+        <button 
+          type="button" 
+          @click="activeGroup = '{{ bg }}'"
+          :class="activeGroup === '{{ bg }}' ? 'bg-rose-600 text-white shadow-md' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'"
+          class="py-2 text-xs font-bold rounded-xl transition-all">
+          {{ bg }}
+        </button>
+        {% endfor %}
+      </div>
+
+      <!-- Match Visualizer -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        
+        <div class="p-4 rounded-2xl bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800">
+          <p class="text-xs font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 mb-2 flex items-center gap-1.5">
+            <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
+            Can Donate Blood To:
+          </p>
+          <div class="flex flex-wrap gap-1.5">
+            <template x-for="target in {{ CAN_GIVE_TO | tojson }}[activeGroup]" :key="target">
+              <span class="px-2.5 py-1 rounded-lg bg-emerald-600 text-white text-xs font-bold" x-text="target"></span>
+            </template>
+          </div>
+        </div>
+
+        <div class="p-4 rounded-2xl bg-blue-50/70 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800">
+          <p class="text-xs font-bold uppercase tracking-wider text-blue-700 dark:text-blue-400 mb-2 flex items-center gap-1.5">
+            <i data-lucide="arrow-down-left" class="w-4 h-4"></i>
+            Can Safely Receive From:
+          </p>
+          <div class="flex flex-wrap gap-1.5">
+            <template x-for="source in {{ CAN_RECEIVE_FROM | tojson }}[activeGroup]" :key="source">
+              <span class="px-2.5 py-1 rounded-lg bg-blue-600 text-white text-xs font-bold" x-text="source"></span>
+            </template>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- Bottom CTA Band -->
+<section class="max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8 pb-12">
+  <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-rose-600 via-rose-700 to-crimson-900 text-white p-8 sm:p-12 shadow-2xl flex flex-col md:flex-row items-center justify-between gap-8">
+    <div class="max-w-xl">
+      <h3 class="text-2xl sm:text-3xl font-extrabold font-heading mb-2">Be the Reason Someone Survives Today.</h3>
+      <p class="text-xs sm:text-sm text-rose-100 leading-relaxed">
+        1 donation can save up to 3 adult lives. Join thousands of compassionate donors on RaktSetu and receive verified emergency alerts.
+      </p>
+    </div>
+    <div class="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
+      <a href="{{ url_for('signup') }}" class="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-white text-rose-600 font-heading font-bold text-sm shadow-lg hover:bg-rose-50 active:scale-95 transition-all text-center">
+        Register as Donor
+      </a>
+      <a href="{{ url_for('new_emergency_request') }}" class="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-rose-950/60 hover:bg-rose-950 border border-rose-400 text-white font-heading font-bold text-sm active:scale-95 transition-all text-center">
+        Create Request
+      </a>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

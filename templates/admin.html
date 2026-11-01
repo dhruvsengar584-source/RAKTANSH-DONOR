@@ -1,0 +1,434 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Control Center | RaktSetu{% endblock %}
+
+{% block content %}
+<div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8" x-data="{ currentTab: 'overview', donorSearch: '', requestSearch: '' }">
+
+  <!-- Header -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+    <div>
+      <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 text-xs font-bold mb-1 border border-indigo-200 dark:border-indigo-800">
+        <i data-lucide="shield" class="w-3.5 h-3.5"></i>
+        <span>Platform SuperAdmin Oversight</span>
+      </div>
+      <h1 class="text-2xl sm:text-3xl font-extrabold font-heading text-slate-900 dark:text-white">National Blood Network Operations</h1>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="flex items-center bg-slate-100 dark:bg-slate-800 p-1 rounded-2xl border border-slate-200 dark:border-slate-700">
+      <button 
+        type="button" 
+        @click="currentTab = 'overview'" 
+        :class="currentTab === 'overview' ? 'bg-white dark:bg-slate-700 text-rose-600 shadow-sm' : 'text-slate-600 dark:text-slate-300'"
+        class="px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5">
+        <i data-lucide="bar-chart-3" class="w-4 h-4"></i>
+        <span>Overview</span>
+      </button>
+
+      <button 
+        type="button" 
+        @click="currentTab = 'donors'" 
+        :class="currentTab === 'donors' ? 'bg-white dark:bg-slate-700 text-rose-600 shadow-sm' : 'text-slate-600 dark:text-slate-300'"
+        class="px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5">
+        <i data-lucide="users" class="w-4 h-4"></i>
+        <span>Manage Donors ({{ donors|length }})</span>
+      </button>
+
+      <button 
+        type="button" 
+        @click="currentTab = 'requests'" 
+        :class="currentTab === 'requests' ? 'bg-white dark:bg-slate-700 text-rose-600 shadow-sm' : 'text-slate-600 dark:text-slate-300'"
+        class="px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5">
+        <i data-lucide="file-text" class="w-4 h-4"></i>
+        <span>Requests ({{ requests|length }})</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ================= TAB 1: OVERVIEW & ANALYTICS ================= -->
+  <div x-show="currentTab === 'overview'" class="space-y-8">
+    
+    <!-- 4 Stat Cards with Trend Icons -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      
+      <!-- Card 1 -->
+      <div class="bg-white dark:bg-[#111A2E] rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm card-hover">
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-xs font-bold text-slate-500 uppercase">Total Donors</span>
+          <span class="inline-flex items-center text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-full">
+            <i data-lucide="trending-up" class="w-3.5 h-3.5 mr-1"></i> +14.2%
+          </span>
+        </div>
+        <p class="text-3xl font-extrabold font-heading text-slate-900 dark:text-white">{{ total_donors }}</p>
+        <p class="text-[11px] text-slate-400 mt-1">Verified blood donors</p>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="bg-white dark:bg-[#111A2E] rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm card-hover">
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-xs font-bold text-slate-500 uppercase">Active Requests</span>
+          <span class="inline-flex items-center text-xs font-bold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/60 px-2 py-0.5 rounded-full">
+            <i data-lucide="alert-circle" class="w-3.5 h-3.5 mr-1"></i> Real-time
+          </span>
+        </div>
+        <p class="text-3xl font-extrabold font-heading text-slate-900 dark:text-white">{{ active_requests }}</p>
+        <p class="text-[11px] text-slate-400 mt-1">Awaiting donor attendance</p>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="bg-white dark:bg-[#111A2E] rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm card-hover">
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-xs font-bold text-slate-500 uppercase">Estimated Lives Saved</span>
+          <span class="inline-flex items-center text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-full">
+            <i data-lucide="heart" class="w-3.5 h-3.5 mr-1"></i> &times;3 Multiplier
+          </span>
+        </div>
+        <p class="text-3xl font-extrabold font-heading text-slate-900 dark:text-white">{{ lives_saved }}+</p>
+        <p class="text-[11px] text-slate-400 mt-1">Direct clinical impact</p>
+      </div>
+
+      <!-- Card 4 -->
+      <div class="bg-white dark:bg-[#111A2E] rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm card-hover">
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-xs font-bold text-slate-500 uppercase">Fulfillment Rate</span>
+          <span class="inline-flex items-center text-xs font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/60 px-2 py-0.5 rounded-full">
+            <i data-lucide="check" class="w-3.5 h-3.5 mr-1"></i> High
+          </span>
+        </div>
+        <p class="text-3xl font-extrabold font-heading text-slate-900 dark:text-white">
+          {% if total_requests > 0 %}
+          {{ ((fulfilled_requests / total_requests) * 100)|round(1) }}%
+          {% else %}
+          100%
+          {% endif %}
+        </p>
+        <p class="text-[11px] text-slate-400 mt-1">{{ fulfilled_requests }} of {{ total_requests }} resolved</p>
+      </div>
+
+    </div>
+
+    <!-- 3 Interactive Chart.js Visualizations -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      
+      <!-- Chart 1: Donors by Blood Group (Doughnut) -->
+      <div class="bg-white dark:bg-[#111A2E] rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
+        <h3 class="font-bold text-sm font-heading text-slate-900 dark:text-white mb-1">Donor Group Distribution</h3>
+        <p class="text-xs text-slate-400 mb-4">Availability inventory across all 8 blood types</p>
+        <div class="h-64 flex items-center justify-center">
+          <canvas id="bloodGroupChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Chart 2: Requests by Status (Bar) -->
+      <div class="bg-white dark:bg-[#111A2E] rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
+        <h3 class="font-bold text-sm font-heading text-slate-900 dark:text-white mb-1">Emergency Request Pipeline</h3>
+        <p class="text-xs text-slate-400 mb-4">Active vs fulfilled hospital cases</p>
+        <div class="h-64 flex items-center justify-center">
+          <canvas id="requestStatusChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Chart 3: Monthly Volunteer Growth (Line) -->
+      <div class="bg-white dark:bg-[#111A2E] rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
+        <h3 class="font-bold text-sm font-heading text-slate-900 dark:text-white mb-1">Volunteer Signups (2026)</h3>
+        <p class="text-xs text-slate-400 mb-4">Cumulative monthly growth trajectory</p>
+        <div class="h-64 flex items-center justify-center">
+          <canvas id="growthChart"></canvas>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- ================= TAB 2: MANAGE DONORS ================= -->
+  <div x-show="currentTab === 'donors'" style="display: none;">
+    <div class="bg-white dark:bg-[#111A2E] rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
+      
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+        <div>
+          <h2 class="text-lg font-bold font-heading text-slate-900 dark:text-white">Registered Voluntary Donors</h2>
+          <p class="text-xs text-slate-400">Verify credentials, toggle search listing, or manage donor accounts</p>
+        </div>
+
+        <div class="w-full sm:w-72 relative">
+          <input 
+            type="text" 
+            x-model="donorSearch" 
+            placeholder="Search by name, city, group..." 
+            class="w-full pl-9 pr-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500">
+          <i data-lucide="search" class="w-4 h-4 absolute left-3 top-2.5 text-slate-400"></i>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-slate-50 dark:bg-slate-800/60 text-slate-400 uppercase font-bold text-[10px] border-b border-slate-200 dark:border-slate-800">
+            <tr>
+              <th class="py-3 px-4">Donor</th>
+              <th class="py-3 px-4">Blood Group</th>
+              <th class="py-3 px-4">City</th>
+              <th class="py-3 px-4">Donations</th>
+              <th class="py-3 px-4">Status</th>
+              <th class="py-3 px-4">Verification</th>
+              <th class="py-3 px-4 text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+            {% for d in donors %}
+            <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/40 transition-colors"
+                x-show="!donorSearch || '{{ d.name|lower }} {{ d.city|lower }} {{ d.blood_group|lower }}'.includes(donorSearch.toLowerCase())">
+              
+              <td class="py-3 px-4">
+                <div class="flex items-center gap-3">
+                  <div class="w-8 h-8 rounded-xl bg-slate-900 text-white font-bold text-xs flex items-center justify-center font-heading">
+                    {{ d.initials() }}
+                  </div>
+                  <div>
+                    <a href="{{ url_for('donor_profile', donor_id=d.id) }}" class="font-bold text-slate-900 dark:text-white hover:text-rose-600 transition-colors">
+                      {{ d.name }}
+                    </a>
+                    <p class="text-[10px] text-slate-400">{{ d.email }}</p>
+                  </div>
+                </div>
+              </td>
+
+              <td class="py-3 px-4">
+                <span class="blood-badge text-[11px] px-2 py-0.5">{{ d.blood_group }}</span>
+              </td>
+
+              <td class="py-3 px-4 text-slate-600 dark:text-slate-300">{{ d.city }}</td>
+              
+              <td class="py-3 px-4 font-bold text-slate-900 dark:text-white">{{ d.total_donations }}</td>
+
+              <td class="py-3 px-4">
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold {% if d.is_available %}bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-300{% else %}bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400{% endif %}">
+                  <span class="w-1.5 h-1.5 rounded-full {% if d.is_available %}bg-teal-500{% else %}bg-slate-400{% endif %}"></span>
+                  {{ 'Available' if d.is_available else 'Inactive' }}
+                </span>
+              </td>
+
+              <td class="py-3 px-4">
+                <span class="inline-flex items-center gap-1 text-[11px] font-bold {% if d.is_verified %}text-blue-600 dark:text-blue-400{% else %}text-slate-400{% endif %}">
+                  <i data-lucide="{% if d.is_verified %}check-circle{% else %}clock{% endif %}" class="w-3.5 h-3.5"></i>
+                  {{ 'Verified' if d.is_verified else 'Pending' }}
+                </span>
+              </td>
+
+              <td class="py-3 px-4 text-right">
+                <div class="flex items-center justify-end gap-1.5">
+                  
+                  <!-- Verify toggle -->
+                  <form action="{{ url_for('admin_verify_donor', donor_id=d.id) }}" method="POST">
+                    <button type="submit" title="Toggle verification" class="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 hover:text-blue-600">
+                      <i data-lucide="shield-check" class="w-4 h-4"></i>
+                    </button>
+                  </form>
+
+                  <!-- Status toggle -->
+                  <form action="{{ url_for('admin_toggle_donor', donor_id=d.id) }}" method="POST">
+                    <button type="submit" title="Toggle availability" class="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 hover:text-teal-600">
+                      <i data-lucide="power" class="w-4 h-4"></i>
+                    </button>
+                  </form>
+
+                  <!-- Delete -->
+                  {% if d.id != current_user.id %}
+                  <form action="{{ url_for('admin_delete_donor', donor_id=d.id) }}" method="POST" onsubmit="return confirm('Permanently remove this donor account?')">
+                    <button type="submit" title="Delete donor" class="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-400 hover:text-rose-600">
+                      <i data-lucide="trash-2" class="w-4 h-4"></i>
+                    </button>
+                  </form>
+                  {% endif %}
+
+                </div>
+              </td>
+
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ================= TAB 3: MANAGE REQUESTS ================= -->
+  <div x-show="currentTab === 'requests'" style="display: none;">
+    <div class="bg-white dark:bg-[#111A2E] rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
+      
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+        <div>
+          <h2 class="text-lg font-bold font-heading text-slate-900 dark:text-white">Emergency Request Pipeline</h2>
+          <p class="text-xs text-slate-400">All submitted hospital cases and their live fulfillment status</p>
+        </div>
+
+        <div class="w-full sm:w-72 relative">
+          <input 
+            type="text" 
+            x-model="requestSearch" 
+            placeholder="Search patient, hospital, city..." 
+            class="w-full pl-9 pr-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500">
+          <i data-lucide="search" class="w-4 h-4 absolute left-3 top-2.5 text-slate-400"></i>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-slate-50 dark:bg-slate-800/60 text-slate-400 uppercase font-bold text-[10px] border-b border-slate-200 dark:border-slate-800">
+            <tr>
+              <th class="py-3 px-4">ID & Patient</th>
+              <th class="py-3 px-4">Hospital / City</th>
+              <th class="py-3 px-4">Group</th>
+              <th class="py-3 px-4">Urgency</th>
+              <th class="py-3 px-4">Status</th>
+              <th class="py-3 px-4">Responders</th>
+              <th class="py-3 px-4 text-right">Action</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+            {% for r in requests %}
+            <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/40 transition-colors"
+                x-show="!requestSearch || '{{ r.patient_name|lower }} {{ r.hospital_name|lower }} {{ r.city|lower }} {{ r.blood_group|lower }}'.includes(requestSearch.toLowerCase())">
+              
+              <td class="py-3 px-4">
+                <span class="font-bold text-slate-900 dark:text-white">#{{ r.id }} {{ r.patient_name }}</span>
+                <p class="text-[10px] text-slate-400">{{ r.created_at.strftime('%d %b, %H:%M') }}</p>
+              </td>
+
+              <td class="py-3 px-4 text-slate-600 dark:text-slate-300">
+                {{ r.hospital_name }} ({{ r.city }})
+              </td>
+
+              <td class="py-3 px-4">
+                <span class="blood-badge text-[11px] px-2 py-0.5">{{ r.blood_group }}</span>
+              </td>
+
+              <td class="py-3 px-4">
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase text-white {% if r.urgency == 'Critical' %}bg-rose-600{% elif r.urgency == 'Urgent' %}bg-amber-500{% else %}bg-blue-600{% endif %}">
+                  {{ r.urgency }}
+                </span>
+              </td>
+
+              <td class="py-3 px-4">
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase {% if r.status == 'Fulfilled' %}bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300{% elif r.status == 'Accepted' %}bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300{% else %}bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300{% endif %}">
+                  {{ r.status }}
+                </span>
+              </td>
+
+              <td class="py-3 px-4 font-bold text-slate-900 dark:text-white">
+                {{ r.responses.count() }} donors
+              </td>
+
+              <td class="py-3 px-4 text-right">
+                <div class="flex items-center justify-end gap-2">
+                  <a href="{{ url_for('request_detail', request_id=r.id) }}" class="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300 text-xs font-bold">
+                    View
+                  </a>
+
+                  {% if r.status != 'Fulfilled' %}
+                  <form action="{{ url_for('admin_close_request', req_id=r.id) }}" method="POST">
+                    <button type="submit" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-sm">
+                      Mark Fulfilled
+                    </button>
+                  </form>
+                  {% endif %}
+                </div>
+              </td>
+
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  // Chart 1: Donors by Blood Group (Doughnut)
+  const bgCounts = {{ blood_group_counts | tojson }};
+  const ctxBg = document.getElementById('bloodGroupChart').getContext('2d');
+  new Chart(ctxBg, {
+    type: 'doughnut',
+    data: {
+      labels: Object.keys(bgCounts),
+      datasets: [{
+        data: Object.values(bgCounts),
+        backgroundColor: [
+          '#E11D48', '#F43F5E', '#FB7185', '#FDA4AF',
+          '#14B8A6', '#06B6D4', '#3B82F6', '#6366F1'
+        ],
+        borderWidth: 2,
+        borderColor: '#ffffff'
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 10 } } }
+      }
+    }
+  });
+
+  // Chart 2: Requests by Status (Bar)
+  const statusCounts = {{ status_counts | tojson }};
+  const ctxStatus = document.getElementById('requestStatusChart').getContext('2d');
+  new Chart(ctxStatus, {
+    type: 'bar',
+    data: {
+      labels: Object.keys(statusCounts),
+      datasets: [{
+        label: 'Requests',
+        data: Object.values(statusCounts),
+        backgroundColor: ['#F59E0B', '#E11D48', '#14B8A6'],
+        borderRadius: 8
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { beginAtZero: true, grid: { color: '#F1F5F9' } },
+        x: { grid: { display: false } }
+      }
+    }
+  });
+
+  // Chart 3: Growth Trend (Line)
+  const ctxGrowth = document.getElementById('growthChart').getContext('2d');
+  new Chart(ctxGrowth, {
+    type: 'line',
+    data: {
+      labels: ['May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov'],
+      datasets: [{
+        label: 'Lifesaver Donors',
+        data: [120, 240, 480, 750, 1100, 1650, 2150],
+        borderColor: '#E11D48',
+        backgroundColor: 'rgba(225, 29, 72, 0.1)',
+        fill: true,
+        tension: 0.35,
+        borderWidth: 3
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { beginAtZero: true, grid: { color: '#F1F5F9' } },
+        x: { grid: { display: false } }
+      }
+    }
+  });
+});
+</script>
+{% endblock %}

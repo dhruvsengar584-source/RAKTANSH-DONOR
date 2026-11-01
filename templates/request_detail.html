@@ -1,0 +1,330 @@
+{% extends "base.html" %}
+
+{% block title %}Blood Request #{{ req.id }} - {{ req.patient_name }} ({{ req.blood_group }}) | RaktSetu{% endblock %}
+
+{% block content %}
+<div class="max-w-[1000px] mx-auto px-4 sm:px-6 lg:px-8 py-10" x-data="{ respondModalOpen: false }">
+
+  <!-- Success Broadcast Banner (if newly submitted) -->
+  {% if broadcast_count %}
+  <div class="mb-8 p-6 rounded-3xl bg-emerald-500 text-white shadow-xl flex items-center gap-5">
+    <div class="w-14 h-14 rounded-2xl bg-white/20 flex items-center justify-center flex-shrink-0">
+      <svg class="w-8 h-8 text-white" viewBox="0 0 52 52">
+        <circle class="checkmark-circle" cx="26" cy="26" r="25" fill="none"/>
+        <path class="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" stroke="currentColor" stroke-width="3"/>
+      </svg>
+    </div>
+    <div>
+      <h3 class="text-lg font-bold font-heading">Emergency Alert Successfully Dispatched!</h3>
+      <p class="text-xs text-emerald-100 mt-0.5">
+        We notified <strong>{{ broadcast_count }} nearby compatible donors</strong> in {{ req.city }}. Responses will update live on this page.
+      </p>
+    </div>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => { triggerConfetti(); });
+  </script>
+  {% endif %}
+
+  <!-- Back button -->
+  <div class="mb-6 flex items-center justify-between">
+    <a href="{{ url_for('search') }}" class="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-rose-600 transition-colors">
+      <i data-lucide="arrow-left" class="w-4 h-4"></i>
+      <span>Back to Search</span>
+    </a>
+    <span class="text-xs text-slate-400 font-mono">REQ-ID: #{{ req.id }}</span>
+  </div>
+
+  <!-- Live Status Stepper -->
+  <div class="bg-white dark:bg-[#111A2E] rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-md mb-8">
+    
+    <div class="flex items-center justify-between mb-8">
+      <div>
+        <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Request Lifecycle Status</span>
+        <h2 class="text-xl font-bold font-heading text-slate-900 dark:text-white mt-0.5">
+          Current State: <span class="text-rose-600 dark:text-rose-400">{{ req.status }}</span>
+        </h2>
+      </div>
+      
+      <!-- Urgency Tag -->
+      <span class="px-3.5 py-1.5 rounded-full text-xs font-black uppercase tracking-wider text-white shadow-sm {% if req.urgency == 'Critical' %}bg-rose-600 animate-pulse{% elif req.urgency == 'Urgent' %}bg-amber-500{% else %}bg-blue-600{% endif %}">
+        {{ req.urgency }} Urgency
+      </span>
+    </div>
+
+    <!-- Stepper bar -->
+    <div class="relative flex items-center justify-between max-w-xl mx-auto">
+      <div class="absolute left-0 top-1/2 -translate-y-1/2 h-1 bg-slate-200 dark:bg-slate-800 w-full -z-0"></div>
+      
+      {% set step_num = 1 if req.status == 'Open' else (2 if req.status == 'Accepted' else 3) %}
+      <div class="absolute left-0 top-1/2 -translate-y-1/2 h-1 bg-rose-600 transition-all duration-300 -z-0"
+           style="width: {{ ((step_num - 1) * 50) }}%;"></div>
+
+      <!-- Step 1: Open -->
+      <div class="flex flex-col items-center relative z-10">
+        <div class="w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs shadow {% if step_num >= 1 %}bg-rose-600 text-white ring-4 ring-rose-100 dark:ring-rose-950{% else %}bg-slate-200 dark:bg-slate-800 text-slate-500{% endif %}">
+          1
+        </div>
+        <span class="text-xs font-bold mt-2 text-slate-900 dark:text-white">Broadcasted</span>
+        <span class="text-[10px] text-slate-400">{{ req.created_at.strftime('%H:%M, %d %b') }}</span>
+      </div>
+
+      <!-- Step 2: Accepted -->
+      <div class="flex flex-col items-center relative z-10">
+        <div class="w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs shadow {% if step_num >= 2 %}bg-rose-600 text-white ring-4 ring-rose-100 dark:ring-rose-950{% else %}bg-slate-200 dark:bg-slate-800 text-slate-500{% endif %}">
+          2
+        </div>
+        <span class="text-xs font-bold mt-2 text-slate-900 dark:text-white">Donor Responded</span>
+        <span class="text-[10px] text-slate-400">Coordination Active</span>
+      </div>
+
+      <!-- Step 3: Fulfilled -->
+      <div class="flex flex-col items-center relative z-10">
+        <div class="w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs shadow {% if step_num >= 3 %}bg-emerald-600 text-white ring-4 ring-emerald-100 dark:ring-emerald-950{% else %}bg-slate-200 dark:bg-slate-800 text-slate-500{% endif %}">
+          3
+        </div>
+        <span class="text-xs font-bold mt-2 text-slate-900 dark:text-white">Fulfilled</span>
+        <span class="text-[10px] text-slate-400">Life Impacted</span>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- Main Request Card Grid -->
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mb-8">
+    
+    <!-- Left details (8 cols) -->
+    <div class="lg:col-span-8 bg-white dark:bg-[#111A2E] rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-sm space-y-6">
+      
+      <div class="flex items-start justify-between gap-4 pb-6 border-b border-slate-100 dark:border-slate-800">
+        <div>
+          <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Patient Name</span>
+          <h1 class="text-2xl font-extrabold font-heading text-slate-900 dark:text-white">{{ req.patient_name }}</h1>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-1">
+            <i data-lucide="building-2" class="w-4 h-4 text-slate-400"></i>
+            {{ req.hospital_name }} &bull; {{ req.city }}
+          </p>
+        </div>
+
+        <div class="text-right">
+          <div class="blood-badge text-base px-4 py-1.5 font-black">
+            {{ req.blood_group }}
+          </div>
+          <p class="text-xs font-bold text-slate-600 dark:text-slate-400 mt-1.5">{{ req.units_needed }} Unit(s) Required</p>
+        </div>
+      </div>
+
+      <!-- Hospital Location & Ward info -->
+      <div>
+        <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Hospital Address & Notes</h4>
+        <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-700/60 text-xs text-slate-700 dark:text-slate-300 space-y-2">
+          <p><strong>Address:</strong> {{ req.hospital_address or 'City Center Hospital, ' + req.city }}</p>
+          {% if req.notes %}
+          <p><strong>Clinical Notes:</strong> {{ req.notes }}</p>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Contact Coordinator Info (Privacy Protected) -->
+      <div>
+        <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Attendant Contact Information</h4>
+        
+        <div class="p-5 rounded-2xl border {% if req.status in ['Accepted', 'Fulfilled'] or (current_user.is_authenticated and (current_user.id == req.requester_id or current_user.role == 'admin')) %}bg-emerald-50/70 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800{% else %}bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700{% endif %}">
+          
+          {% if req.status in ['Accepted', 'Fulfilled'] or (current_user.is_authenticated and (current_user.id == req.requester_id or current_user.role == 'admin')) %}
+          <!-- Unveiled Details -->
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-xs font-bold text-emerald-800 dark:text-emerald-300 uppercase tracking-wide">Direct Contact Unlocked</p>
+              <p class="font-bold text-base text-slate-900 dark:text-white mt-0.5">{{ req.contact_person }}</p>
+              <p class="font-mono text-base font-extrabold text-rose-600 dark:text-rose-400 mt-0.5">{{ req.contact_phone }}</p>
+            </div>
+            <a href="tel:{{ req.contact_phone }}" class="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-2 shadow-md">
+              <i data-lucide="phone" class="w-4 h-4"></i>
+              <span>Call Coordinator</span>
+            </a>
+          </div>
+          {% else %}
+          <!-- Protected Masked Phone -->
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <p class="text-xs font-bold text-slate-500 uppercase tracking-wide">Coordinator (Phone Masked)</p>
+              <p class="font-bold text-sm text-slate-900 dark:text-white">{{ req.contact_person }}</p>
+              <p class="font-mono text-sm text-slate-500">{{ req.contact_phone[:6] }} XXXXX</p>
+            </div>
+            <div class="text-xs text-slate-400">
+              <span class="inline-flex items-center gap-1 text-rose-600 font-semibold">
+                <i data-lucide="lock" class="w-3.5 h-3.5"></i>
+                Unlocks upon accepting request
+              </span>
+            </div>
+          </div>
+          {% endif %}
+
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Right Actions Box (4 cols) -->
+    <div class="lg:col-span-4 space-y-6">
+      
+      <!-- Donor Respond Card -->
+      <div class="bg-white dark:bg-[#111A2E] rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm text-center">
+        
+        <div class="w-12 h-12 rounded-2xl bg-rose-50 dark:bg-rose-950 text-rose-600 flex items-center justify-center mx-auto mb-3">
+          <i data-lucide="heart-handshake" class="w-6 h-6"></i>
+        </div>
+
+        <h3 class="font-bold text-base font-heading text-slate-900 dark:text-white mb-1">Are You Near {{ req.city }}?</h3>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mb-6 leading-relaxed">
+          Help save {{ req.patient_name }}. Step forward to donate or confirm replacement units.
+        </p>
+
+        {% if current_user.is_authenticated %}
+          {% if user_response %}
+          <div class="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 text-xs font-bold mb-4">
+            You responded: "{{ user_response.status }}"
+          </div>
+          {% endif %}
+
+          {% if req.status != 'Fulfilled' %}
+          <button 
+            type="button" 
+            @click="respondModalOpen = true"
+            class="w-full py-3 px-4 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-md shadow-rose-600/25 active:scale-95 transition-all flex items-center justify-center gap-2">
+            <i data-lucide="check-circle" class="w-4 h-4"></i>
+            <span>Accept / Offer Blood</span>
+          </button>
+          {% else %}
+          <div class="p-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 text-xs font-bold">
+            This request has been fulfilled.
+          </div>
+          {% endif %}
+
+        {% else %}
+          <a href="{{ url_for('login', next=request.path) }}" class="w-full py-3 px-4 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-md flex items-center justify-center gap-2">
+            Log in to Respond
+          </a>
+        {% endif %}
+
+      </div>
+
+      <!-- Mark as Fulfilled Card (for requester or admin) -->
+      {% if current_user.is_authenticated and (current_user.id == req.requester_id or current_user.role == 'admin') and req.status != 'Fulfilled' %}
+      <div class="bg-emerald-50 dark:bg-emerald-950/30 rounded-3xl p-6 border border-emerald-200 dark:border-emerald-800 text-center">
+        <h4 class="font-bold text-sm text-emerald-900 dark:text-emerald-300 mb-1">Received Blood Units?</h4>
+        <p class="text-xs text-emerald-700 dark:text-emerald-400 mb-4">Marking this as fulfilled will thank responding donors and update public availability.</p>
+        
+        <form action="{{ url_for('fulfill_request', request_id=req.id) }}" method="POST">
+          <button 
+            type="submit" 
+            class="w-full py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md shadow-emerald-600/20 active:scale-95 transition-all">
+            Mark Request as Fulfilled 🎉
+          </button>
+        </form>
+      </div>
+      {% endif %}
+
+    </div>
+
+  </div>
+
+  <!-- Responding Donors List Section -->
+  <div class="bg-white dark:bg-[#111A2E] rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-sm">
+    <div class="flex items-center justify-between mb-6">
+      <h3 class="text-base font-bold font-heading text-slate-900 dark:text-white flex items-center gap-2">
+        <i data-lucide="users" class="w-5 h-5 text-rose-600"></i>
+        Responding Donors ({{ responses|length }})
+      </h3>
+      <span class="text-xs text-slate-400">Updates live</span>
+    </div>
+
+    {% if responses %}
+    <div class="divide-y divide-slate-100 dark:divide-slate-800">
+      {% for resp in responses %}
+      <div class="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        
+        <div class="flex items-start gap-3.5">
+          <div class="w-11 h-11 rounded-2xl bg-slate-900 text-white font-bold text-xs flex items-center justify-center font-heading">
+            {{ resp.donor.initials() }}
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="font-bold text-sm text-slate-900 dark:text-white">{{ resp.donor.name }}</span>
+              <span class="blood-badge text-[11px] px-2 py-0.5">{{ resp.donor.blood_group }}</span>
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300">
+                {{ resp.status }}
+              </span>
+            </div>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 italic">"{{ resp.message }}"</p>
+            <span class="text-[10px] text-slate-400 mt-1 block">Responded {{ resp.responded_at.strftime('%H:%M • %d %b') }}</span>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <a href="{{ url_for('donor_profile', donor_id=resp.donor.id) }}" class="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-xs font-bold hover:bg-slate-50 dark:hover:bg-slate-800">
+            View Donor Profile
+          </a>
+        </div>
+
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-10 text-slate-400 text-xs">
+      <i data-lucide="radio" class="w-8 h-8 mx-auto mb-2 opacity-50 animate-pulse text-rose-500"></i>
+      Emergency ping active. Awaiting first donor confirmation...
+    </div>
+    {% endif %}
+
+  </div>
+
+  <!-- Donor Response Modal -->
+  <div x-show="respondModalOpen" 
+       x-transition.opacity 
+       class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm" 
+       style="display: none;">
+    <div class="bg-white dark:bg-[#111A2E] rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-800 relative" @click.away="respondModalOpen = false">
+      <button @click="respondModalOpen = false" class="absolute top-4 right-4 p-1.5 rounded-full text-slate-400 hover:text-slate-600">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+
+      <h3 class="font-bold text-lg font-heading text-slate-900 dark:text-white mb-1">Confirm Blood Donation</h3>
+      <p class="text-xs text-slate-500 mb-4">Please confirm your commitment to reach {{ req.hospital_name }} in {{ req.city }}.</p>
+
+      <form action="{{ url_for('respond_request', request_id=req.id) }}" method="POST">
+        <div class="space-y-4 mb-6">
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">
+              Response Status
+            </label>
+            <select name="status" class="w-full px-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-900 dark:text-white">
+              <option value="Accepted">Accepted - Ready to travel to hospital</option>
+              <option value="Interested">Interested - Please call me with details</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">
+              Message to Attendant
+            </label>
+            <textarea name="message" rows="3" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-white" placeholder="e.g. I am leaving now, will reach the blood bank in 40 minutes."></textarea>
+          </div>
+        </div>
+
+        <div class="flex gap-3">
+          <button type="button" @click="respondModalOpen = false" class="flex-1 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-700 dark:text-slate-300">
+            Cancel
+          </button>
+          <button type="submit" class="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-md shadow-rose-600/30">
+            Confirm & Send
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

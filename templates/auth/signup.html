@@ -1,0 +1,283 @@
+{% extends "base.html" %}
+
+{% block title %}Join RaktSetu | RAKTANSH DONOR Network Registration{% endblock %}
+
+{% block content %}
+<div class="min-h-[calc(100vh-12rem)] flex items-center justify-center py-10 px-4 sm:px-6 lg:px-8" x-data="signupController()">
+  
+  <div class="max-w-5xl w-full bg-white dark:bg-[#111A2E] rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden grid grid-cols-1 lg:grid-cols-12">
+    
+    <!-- Left Panel: Animated Navy/Maroon with Real-Time LIVE PREVIEW UI -->
+    <div class="lg:col-span-5 bg-gradient-to-br from-[#0F172A] via-[#3B0712] to-[#7F1D1D] p-8 sm:p-10 text-white flex flex-col justify-between relative overflow-hidden">
+      
+      <!-- Ambient Glows -->
+      <div class="absolute -top-16 -left-16 w-60 h-60 bg-rose-500/25 rounded-full blur-3xl animate-pulse"></div>
+      <div class="absolute -bottom-16 -right-16 w-60 h-60 bg-crimson-600/30 rounded-full blur-3xl"></div>
+
+      <!-- Header with RAKTANSH DONOR branding -->
+      <div class="relative z-10 mb-6">
+        <div class="flex items-center gap-2.5 mb-3">
+          <div class="w-10 h-10 rounded-2xl bg-rose-600 flex items-center justify-center text-white shadow-lg shadow-rose-600/50">
+            <i data-lucide="droplet" class="w-6 h-6 fill-white stroke-white"></i>
+          </div>
+          <div>
+            <h2 class="font-extrabold text-xl font-heading tracking-tight leading-tight">RAKTANSH DONOR</h2>
+            <p class="text-[10px] uppercase font-bold text-rose-300 tracking-wider">RaktSetu Life Saver Pass</p>
+          </div>
+        </div>
+        <p class="text-xs text-rose-100">
+          Your digital voluntary donor card is generated instantly as you fill the registration details.
+        </p>
+      </div>
+
+      <!-- LIVE PREVIEW UI CARD (Dynamically Reacts to Right Form) -->
+      <div class="relative z-10 my-4">
+        
+        <div class="text-[10px] uppercase font-bold text-rose-300 tracking-widest mb-2 flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>
+          <span>Live Card Preview</span>
+        </div>
+
+        <!-- The Interactive Digital ID Card -->
+        <div class="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-6 shadow-2xl relative overflow-hidden transition-all duration-300 transform hover:scale-[1.02]">
+          
+          <!-- Background watermark blood drop -->
+          <i data-lucide="droplet" class="w-32 h-32 absolute -right-6 -bottom-6 text-white/5 pointer-events-none stroke-none fill-white"></i>
+
+          <div class="flex items-start justify-between mb-4">
+            <div class="flex items-center gap-3">
+              <!-- Animated Avatar Initials -->
+              <div class="w-13 h-13 rounded-2xl bg-rose-600 text-white font-extrabold font-heading text-lg flex items-center justify-center shadow-lg shadow-rose-600/50 border border-white/30">
+                <span x-text="computedInitials"></span>
+              </div>
+              <div>
+                <p class="font-extrabold text-base text-white font-heading" x-text="name || 'Your Full Name'"></p>
+                <p class="text-[11px] text-rose-200" x-text="(city || 'New Delhi') + ', India'"></p>
+              </div>
+            </div>
+
+            <!-- Blood Badge -->
+            <div class="px-3 py-1 rounded-full bg-white text-rose-600 font-extrabold text-xs font-heading shadow-md" x-text="bloodGroup">
+            </div>
+          </div>
+
+          <!-- Card Details Grid -->
+          <div class="grid grid-cols-2 gap-3 text-xs pt-3 border-t border-white/10 mb-4">
+            <div>
+              <p class="text-[9px] uppercase tracking-wider text-rose-300 font-semibold">Status</p>
+              <div class="flex items-center gap-1.5 mt-0.5">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span class="font-bold text-white text-[11px]" x-text="role === 'donor' ? 'Ready to Donate' : 'Requesting Patient'"></span>
+              </div>
+            </div>
+            <div>
+              <p class="text-[9px] uppercase tracking-wider text-rose-300 font-semibold">Member Pass ID</p>
+              <p class="font-mono text-[11px] font-bold text-white mt-0.5">RKT-2026-LIVE</p>
+            </div>
+          </div>
+
+          <!-- Verification seal -->
+          <div class="flex items-center justify-between text-[10px] text-rose-200">
+            <span class="flex items-center gap-1">
+              <i data-lucide="shield-check" class="w-3.5 h-3.5 text-blue-300"></i>
+              Verified Blood Network
+            </span>
+            <span class="text-white/60 font-mono">100% Free Service</span>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Bottom quote -->
+      <div class="relative z-10 pt-4 border-t border-white/10 text-[11px] text-rose-200 italic">
+        "One pint of blood can save up to three lives. A few minutes of your time is a lifetime for someone else."
+      </div>
+
+    </div>
+
+    <!-- Right Panel: Registration Form -->
+    <div class="lg:col-span-7 p-8 sm:p-10">
+      
+      <div class="mb-6">
+        <h3 class="text-2xl font-extrabold font-heading text-slate-900 dark:text-white">Create Your Account</h3>
+        <p class="text-xs text-slate-400 mt-1">Join as a voluntary blood donor or hospital seeker in 30 seconds.</p>
+      </div>
+
+      <form action="{{ url_for('signup') }}" method="POST" class="space-y-4">
+        
+        <!-- Role Selector (Donor vs Seeker) -->
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">
+            I Want to Register As:
+          </label>
+          <div class="grid grid-cols-2 gap-3">
+            <button 
+              type="button" 
+              @click="role = 'donor'"
+              :class="role === 'donor' ? 'bg-rose-600 text-white shadow-md' : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300'"
+              class="py-2.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2">
+              <i data-lucide="heart" class="w-4 h-4"></i>
+              <span>Voluntary Donor</span>
+            </button>
+            <button 
+              type="button" 
+              @click="role = 'seeker'"
+              :class="role === 'seeker' ? 'bg-rose-600 text-white shadow-md' : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300'"
+              class="py-2.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2">
+              <i data-lucide="activity" class="w-4 h-4"></i>
+              <span>Recipient / Seeker</span>
+            </button>
+          </div>
+          <input type="hidden" name="role" :value="role">
+        </div>
+
+        <!-- Name & Email -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1">
+              Full Name *
+            </label>
+            <input 
+              type="text" 
+              name="name" 
+              x-model="name" 
+              placeholder="e.g. Rahul Sharma" 
+              required
+              class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-medium text-slate-900 dark:text-white focus:ring-2 focus:ring-rose-500 focus:outline-none">
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1">
+              Email Address *
+            </label>
+            <input 
+              type="email" 
+              name="email" 
+              x-model="email" 
+              placeholder="rahul@example.com" 
+              required
+              class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-medium text-slate-900 dark:text-white focus:ring-2 focus:ring-rose-500 focus:outline-none">
+          </div>
+        </div>
+
+        <!-- Password -->
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1">
+            Choose Password *
+          </label>
+          <input 
+            type="password" 
+            name="password" 
+            placeholder="At least 6 characters" 
+            required
+            class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-medium text-slate-900 dark:text-white focus:ring-2 focus:ring-rose-500 focus:outline-none">
+        </div>
+
+        <!-- Blood Group Chips -->
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">
+            Blood Group *
+          </label>
+          <div class="grid grid-cols-4 sm:grid-cols-8 gap-1.5">
+            {% for bg in BLOOD_GROUPS %}
+            <button 
+              type="button" 
+              @click="bloodGroup = '{{ bg }}'"
+              :class="bloodGroup === '{{ bg }}' ? 'bg-rose-600 text-white font-extrabold shadow-sm' : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-rose-50'"
+              class="py-2 rounded-xl text-xs font-heading font-bold transition-all text-center">
+              {{ bg }}
+            </button>
+            {% endfor %}
+          </div>
+          <input type="hidden" name="blood_group" :value="bloodGroup">
+        </div>
+
+        <!-- City & Phone -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1">
+              City *
+            </label>
+            <select 
+              name="city" 
+              x-model="city" 
+              class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-medium text-slate-900 dark:text-white focus:ring-2 focus:ring-rose-500 focus:outline-none">
+              {% for c in CITIES %}
+              <option value="{{ c }}">{{ c }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1">
+              Phone Number *
+            </label>
+            <input 
+              type="tel" 
+              name="phone" 
+              x-model="phone" 
+              placeholder="+91 98765 43210" 
+              required
+              class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-medium text-slate-900 dark:text-white focus:ring-2 focus:ring-rose-500 focus:outline-none">
+          </div>
+        </div>
+
+        <!-- Address -->
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1">
+            Locality / Address (For distance calculation)
+          </label>
+          <input 
+            type="text" 
+            name="address" 
+            placeholder="e.g. Connaught Place, Central Delhi" 
+            class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-medium text-slate-900 dark:text-white focus:ring-2 focus:ring-rose-500 focus:outline-none">
+        </div>
+
+        <button 
+          type="submit" 
+          class="w-full py-3.5 px-4 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold font-heading text-xs shadow-lg shadow-rose-600/30 active:scale-95 transition-all mt-4">
+          Complete Registration & Activate Card
+        </button>
+
+      </form>
+
+      <div class="mt-5 text-center text-xs text-slate-500">
+        Already registered? 
+        <a href="{{ url_for('login') }}" class="font-bold text-rose-600 dark:text-rose-400 hover:underline">
+          Sign in here &rarr;
+        </a>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function signupController() {
+  return {
+    role: 'donor',
+    name: '',
+    email: '',
+    bloodGroup: 'O+',
+    city: 'New Delhi',
+    phone: '',
+
+    get computedInitials() {
+      const parts = this.name.trim().split(/\s+/);
+      if (parts.length >= 2 && parts[0] && parts[1]) {
+        return (parts[0][0] + parts[1][0]).toUpperCase();
+      } else if (parts[0]) {
+        return parts[0].substring(0, 2).toUpperCase();
+      }
+      return 'RS';
+    }
+  }
+}
+</script>
+{% endblock %}

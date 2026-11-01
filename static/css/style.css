@@ -1,0 +1,237 @@
+/* RaktSetu / RaktAnsh Premium Design System */
+
+:root {
+  --primary-crimson: #E11D48;
+  --primary-hover: #BE123C;
+  --primary-pressed: #9F1239;
+  --primary-tint: #FFF1F2;
+  --primary-soft: #FFE4E6;
+
+  --navy: #0F172A;
+  --slate-text: #334155;
+  --muted: #64748B;
+
+  --teal-success: #14B8A6;
+  --teal-text: #0F766E;
+  --amber-warning: #F59E0B;
+  --red-critical: #DC2626;
+  --blue-info: #2563EB;
+
+  --bg-main: #F8FAFC;
+  --card-bg: #FFFFFF;
+  --border-color: #E2E8F0;
+  --text-main: #0F172A;
+
+  --glass-bg: rgba(255, 255, 255, 0.92);
+  --glass-border: rgba(226, 232, 240, 0.8);
+  --hero-gradient: linear-gradient(135deg, #0F172A 0%, #3B0712 50%, #7F1D1D 100%);
+}
+
+.dark {
+  --bg-main: #0B1220;
+  --card-bg: #111A2E;
+  --border-color: #1E293B;
+  --text-main: #E2E8F0;
+  --slate-text: #94A3B8;
+  --muted: #64748B;
+  --glass-bg: rgba(17, 26, 46, 0.92);
+  --glass-border: rgba(30, 41, 59, 0.8);
+  --primary-tint: rgba(225, 29, 72, 0.15);
+  --primary-soft: rgba(225, 29, 72, 0.25);
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  transition: background-color 200ms ease, color 200ms ease;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6, .font-heading {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+/* Card Hover Lift & Smooth Transitions */
+.card-hover {
+  transition: transform 200ms ease, box-shadow 200ms ease, border-color 200ms ease;
+}
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+}
+.dark .card-hover:hover {
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+}
+
+/* Glassmorphism Classes */
+.glass-nav {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+}
+
+/* Pulsing Badge & Emergency Effects */
+@keyframes pulse-ring {
+  0% { transform: scale(0.95); opacity: 0.8; }
+  50% { transform: scale(1.15); opacity: 0.3; }
+  100% { transform: scale(0.95); opacity: 0.8; }
+}
+
+@keyframes emergency-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(225, 29, 72, 0.7), 0 8px 20px -2px rgba(225, 29, 72, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 0 14px rgba(225, 29, 72, 0), 0 12px 28px -2px rgba(225, 29, 72, 0.6);
+  }
+}
+
+.pulse-teal {
+  position: relative;
+}
+.pulse-teal::after {
+  content: '';
+  position: absolute;
+  top: -2px; left: -2px; right: -2px; bottom: -2px;
+  border-radius: 50%;
+  background: #14B8A6;
+  animation: pulse-ring 2s infinite ease-in-out;
+  z-index: 0;
+}
+
+.emergency-btn-pulse {
+  animation: emergency-pulse 2.2s infinite;
+}
+
+/* Blood Group Pill */
+.blood-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  letter-spacing: -0.02em;
+  background-color: var(--primary-tint);
+  color: var(--primary-crimson);
+  border: 1px solid rgba(225, 29, 72, 0.25);
+  border-radius: 9999px;
+}
+
+/* Hero Background Decoration */
+.hero-glow {
+  background: radial-gradient(circle at 50% 20%, rgba(225, 29, 72, 0.25) 0%, rgba(15, 23, 42, 0) 70%);
+}
+
+/* Leaflet Map Custom Marker & Tooltip styling */
+.custom-leaflet-marker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: #E11D48;
+  color: #FFFFFF;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  box-shadow: 0 4px 10px rgba(225, 29, 72, 0.5);
+  border: 2px solid #FFFFFF;
+  transition: transform 200ms ease;
+}
+.custom-leaflet-marker span {
+  transform: rotate(45deg);
+  font-size: 11px;
+  font-weight: 700;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+.custom-leaflet-marker.highlighted {
+  background: #0F172A;
+  transform: rotate(-45deg) scale(1.25);
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.6);
+  z-index: 1000 !important;
+}
+
+/* Leaflet dark mode tile filter */
+.dark .leaflet-tile {
+  filter: brightness(0.7) invert(1) contrast(3) hue-rotate(200deg) saturate(0.3) brightness(0.7);
+}
+
+/* Skeleton Loading Animation */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, #F1F5F9 25%, #E2E8F0 50%, #F1F5F9 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 0.5rem;
+}
+.dark .skeleton {
+  background: linear-gradient(90deg, #1E293B 25%, #334155 50%, #1E293B 75%);
+  background-size: 200% 100%;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-main);
+}
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 4px;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: #334155;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
+}
+
+/* Stepper live animation */
+.step-circle.active {
+  background-color: var(--primary-crimson);
+  color: #FFFFFF;
+  box-shadow: 0 0 0 4px var(--primary-soft);
+}
+.step-circle.completed {
+  background-color: #14B8A6;
+  color: #FFFFFF;
+}
+
+/* Checkmark draw animation */
+@keyframes stroke {
+  100% { stroke-dashoffset: 0; }
+}
+@keyframes scale {
+  0%, 100% { transform: none; }
+  50% { transform: scale3d(1.1, 1.1, 1); }
+}
+.checkmark-circle {
+  stroke-dasharray: 166;
+  stroke-dashoffset: 166;
+  stroke-width: 2;
+  stroke-miterlimit: 10;
+  stroke: #14B8A6;
+  fill: none;
+  animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+}
+.checkmark-check {
+  transform-origin: 50% 50%;
+  stroke-dasharray: 48;
+  stroke-dashoffset: 48;
+  animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.6s forwards;
+}

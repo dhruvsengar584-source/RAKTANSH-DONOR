@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}RaktSetu | Intelligent Blood Donor Network{% endblock %}</title>
+  <meta name="description" content="{% block meta_description %}Find verified blood donors near you in seconds. Real-time emergency requests, smart compatibility matching, and lifesaver community.{% endblock %}">
+
+  <!-- Google Fonts: Plus Jakarta Sans & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            crimson: {
+              50: '#FFF1F2',
+              100: '#FFE4E6',
+              500: '#E11D48',
+              600: '#BE123C',
+              700: '#9F1239',
+              900: '#4C0519'
+            },
+            navy: {
+              800: '#1E293B',
+              900: '#0F172A',
+              950: '#0B1220'
+            },
+            brandTeal: {
+              500: '#14B8A6',
+              700: '#0F766E'
+            }
+          },
+          fontFamily: {
+            heading: ['"Plus Jakarta Sans"', 'sans-serif'],
+            sans: ['"Inter"', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Alpine.js CDN for lightweight reactivity -->
+  <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+  <!-- Leaflet CSS & JS for OpenStreetMap -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- Chart.js for analytics -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Canvas Confetti CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <!-- Custom Design Tokens and Theme Styles -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+  {% block extra_head %}{% endblock %}
+</head>
+<body class="min-h-full flex flex-col bg-slate-50 dark:bg-[#0B1220] text-slate-900 dark:text-slate-100 antialiased" x-data="{ mobileMenuOpen: false, notifOpen: false, userDropdownOpen: false }">
+
+  <!-- Sticky Glass Navbar -->
+  <header class="sticky top-0 z-50 glass-nav border-b border-slate-200/80 dark:border-slate-800/80">
+    <div class="max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8 h-18 flex items-center justify-between">
+      
+      <!-- Brand Logo -->
+      <a href="{{ url_for('index') }}" class="flex items-center gap-3 group">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-rose-600 to-crimson-500 flex items-center justify-center text-white shadow-md shadow-rose-500/30 group-hover:scale-105 transition-transform duration-200">
+          <i data-lucide="droplet" class="w-6 h-6 fill-white stroke-white"></i>
+        </div>
+        <div>
+          <span class="text-xl font-extrabold tracking-tight font-heading text-slate-900 dark:text-white flex items-center gap-1.5">
+            RaktSetu
+            <span class="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-rose-100 text-rose-700 dark:bg-rose-950/80 dark:text-rose-400 border border-rose-300 dark:border-rose-900">
+              RaktAnsh
+            </span>
+          </span>
+          <p class="text-[10px] font-medium text-slate-500 dark:text-slate-400 -mt-1 hidden sm:block">Verified Blood Network</p>
+        </div>
+      </a>
+
+      <!-- Desktop Nav Links -->
+      <nav class="hidden md:flex items-center gap-1 lg:gap-2">
+        <a href="{{ url_for('search') }}" class="px-3.5 py-2 text-sm font-semibold rounded-lg text-slate-600 dark:text-slate-300 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-slate-100/80 dark:hover:bg-slate-800/80 transition-colors">
+          Find Donors
+        </a>
+        <a href="{{ url_for('new_emergency_request') }}" class="px-3.5 py-2 text-sm font-semibold rounded-lg text-slate-600 dark:text-slate-300 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-slate-100/80 dark:hover:bg-slate-800/80 transition-colors">
+          Request Blood
+        </a>
+        <a href="{{ url_for('compatibility') }}" class="px-3.5 py-2 text-sm font-semibold rounded-lg text-slate-600 dark:text-slate-300 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-slate-100/80 dark:hover:bg-slate-800/80 transition-colors">
+          Compatibility
+        </a>
+        <a href="{{ url_for('about') }}" class="px-3.5 py-2 text-sm font-semibold rounded-lg text-slate-600 dark:text-slate-300 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-slate-100/80 dark:hover:bg-slate-800/80 transition-colors">
+          About & Safety
+        </a>
+        {% if current_user.is_authenticated and current_user.role == 'admin' %}
+        <a href="{{ url_for('admin') }}" class="px-3 py-1.5 text-xs font-bold rounded-lg bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800 hover:bg-indigo-100 transition-colors">
+          Admin Portal
+        </a>
+        {% endif %}
+      </nav>
+
+      <!-- Right Action Items -->
+      <div class="flex items-center gap-2 sm:gap-3">
+        
+        <!-- Dark Mode Toggle -->
+        <button onclick="toggleDarkMode()" aria-label="Toggle dark mode" class="w-10 h-10 rounded-xl flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors border border-transparent hover:border-slate-200 dark:hover:border-slate-700">
+          <i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i>
+          <i data-lucide="moon" class="w-5 h-5 block dark:hidden"></i>
+        </button>
+
+        {% if current_user.is_authenticated %}
+        <!-- Notification Bell Dropdown -->
+        <div class="relative" @click.away="notifOpen = false">
+          <button @click="notifOpen = !notifOpen" class="w-10 h-10 rounded-xl flex items-center justify-center relative text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+            <i data-lucide="bell" class="w-5 h-5"></i>
+            {% if unread_notifs_count > 0 %}
+            <span class="absolute top-1.5 right-1.5 w-4 h-4 bg-rose-600 text-white text-[10px] font-bold rounded-full flex items-center justify-center shadow-sm">
+              {{ unread_notifs_count }}
+            </span>
+            {% endif %}
+          </button>
+
+          <!-- Notifications Modal Dropdown -->
+          <div x-show="notifOpen" x-transition.origin.top.right class="absolute right-0 mt-2 w-80 sm:w-96 rounded-2xl bg-white dark:bg-[#111A2E] shadow-2xl border border-slate-200 dark:border-slate-800 z-50 overflow-hidden" style="display: none;">
+            <div class="px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+              <span class="font-bold text-sm font-heading">Notifications</span>
+              <span class="text-xs text-rose-600 dark:text-rose-400 font-semibold">{{ unread_notifs_count }} unread</span>
+            </div>
+            <div class="max-h-72 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800">
+              {% if recent_notifs %}
+                {% for n in recent_notifs %}
+                <a href="{{ n.link }}" class="block px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors {% if not n.is_read %}bg-rose-50/50 dark:bg-rose-950/20{% endif %}">
+                  <p class="text-xs font-bold text-slate-900 dark:text-white mb-0.5">{{ n.title }}</p>
+                  <p class="text-xs text-slate-600 dark:text-slate-400 line-clamp-2">{{ n.message }}</p>
+                  <span class="text-[10px] text-slate-400 mt-1 block">{{ n.created_at.strftime('%d %b, %H:%M') }}</span>
+                </a>
+                {% endfor %}
+              {% else %}
+                <div class="px-4 py-8 text-center text-slate-400 text-xs">
+                  <i data-lucide="inbox" class="w-8 h-8 mx-auto mb-2 stroke-1 opacity-50"></i>
+                  No notifications yet.
+                </div>
+              {% endif %}
+            </div>
+            <div class="p-2 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/40 text-center">
+              <a href="{{ url_for('notifications') }}" class="text-xs font-bold text-rose-600 dark:text-rose-400 hover:underline">
+                View all notifications &rarr;
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- User Profile Dropdown -->
+        <div class="relative" @click.away="userDropdownOpen = false">
+          <button @click="userDropdownOpen = !userDropdownOpen" class="flex items-center gap-2 p-1 pl-2 pr-3 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors border border-slate-200 dark:border-slate-700">
+            <div class="w-8 h-8 rounded-full bg-rose-600 text-white font-bold text-xs flex items-center justify-center font-heading shadow-sm">
+              {{ current_user.initials() }}
+            </div>
+            <span class="text-xs font-semibold hidden sm:inline-block max-w-[100px] truncate">{{ current_user.name }}</span>
+            <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400"></i>
+          </button>
+
+          <!-- Dropdown items -->
+          <div x-show="userDropdownOpen" x-transition.origin.top.right class="absolute right-0 mt-2 w-52 rounded-2xl bg-white dark:bg-[#111A2E] shadow-xl border border-slate-200 dark:border-slate-800 py-1.5 z-50 text-sm font-medium" style="display: none;">
+            <div class="px-4 py-2 border-b border-slate-100 dark:border-slate-800 mb-1">
+              <p class="font-bold text-slate-900 dark:text-white text-xs truncate">{{ current_user.name }}</p>
+              <p class="text-[11px] text-slate-500 dark:text-slate-400 truncate">{{ current_user.email }}</p>
+              <div class="mt-1 flex items-center gap-1">
+                <span class="text-[10px] font-bold px-1.5 py-0.2 rounded bg-rose-100 text-rose-700 dark:bg-rose-900/50 dark:text-rose-300">
+                  {{ current_user.blood_group }}
+                </span>
+                <span class="text-[10px] text-slate-400 capitalize">{{ current_user.role }}</span>
+              </div>
+            </div>
+
+            <a href="{{ url_for('dashboard') }}" class="flex items-center gap-2 px-4 py-2 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 transition-colors">
+              <i data-lucide="layout-dashboard" class="w-4 h-4 text-slate-400"></i>
+              Dashboard
+            </a>
+            {% if current_user.role in ['donor', 'admin'] %}
+            <a href="{{ url_for('donor_profile', donor_id=current_user.id) }}" class="flex items-center gap-2 px-4 py-2 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 transition-colors">
+              <i data-lucide="user" class="w-4 h-4 text-slate-400"></i>
+              Public Profile
+            </a>
+            {% endif %}
+            <a href="{{ url_for('notifications') }}" class="flex items-center gap-2 px-4 py-2 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 transition-colors">
+              <i data-lucide="bell" class="w-4 h-4 text-slate-400"></i>
+              Notifications
+            </a>
+            {% if current_user.role == 'admin' %}
+            <a href="{{ url_for('admin') }}" class="flex items-center gap-2 px-4 py-2 hover:bg-slate-50 dark:hover:bg-slate-800 text-indigo-600 dark:text-indigo-400 font-semibold transition-colors">
+              <i data-lucide="shield" class="w-4 h-4"></i>
+              Admin Analytics
+            </a>
+            {% endif %}
+            <div class="border-t border-slate-100 dark:border-slate-800 my-1"></div>
+            <a href="{{ url_for('logout') }}" class="flex items-center gap-2 px-4 py-2 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-rose-600 dark:text-rose-400 transition-colors">
+              <i data-lucide="log-out" class="w-4 h-4"></i>
+              Logout
+            </a>
+          </div>
+        </div>
+
+        {% else %}
+        <!-- Guest Login & Signup -->
+        <a href="{{ url_for('login') }}" class="hidden sm:inline-flex items-center px-4 py-2 text-sm font-semibold text-slate-700 dark:text-slate-200 hover:text-rose-600 transition-colors">
+          Log in
+        </a>
+        <a href="{{ url_for('signup') }}" class="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold rounded-xl text-white bg-rose-600 hover:bg-rose-700 shadow-md shadow-rose-600/25 active:scale-95 transition-all">
+          Join Network
+        </a>
+        {% endif %}
+
+        <!-- Mobile Hamburger Button -->
+        <button @click="mobileMenuOpen = !mobileMenuOpen" class="md:hidden w-10 h-10 rounded-xl flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+          <i data-lucide="menu" class="w-6 h-6"></i>
+        </button>
+
+      </div>
+    </div>
+
+    <!-- Mobile slide-out nav -->
+    <div x-show="mobileMenuOpen" x-transition class="md:hidden px-4 pt-2 pb-6 space-y-2 border-t border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-[#111A2E]/95 backdrop-blur-lg" style="display: none;">
+      <a href="{{ url_for('search') }}" class="block px-3 py-2.5 rounded-lg text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800">
+        🔍 Find Donors
+      </a>
+      <a href="{{ url_for('new_emergency_request') }}" class="block px-3 py-2.5 rounded-lg text-sm font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30">
+        🚨 Emergency Request
+      </a>
+      <a href="{{ url_for('compatibility') }}" class="block px-3 py-2.5 rounded-lg text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800">
+        🩸 Blood Compatibility Chart
+      </a>
+      <a href="{{ url_for('about') }}" class="block px-3 py-2.5 rounded-lg text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800">
+        ℹ️ About & 90-Day Safety
+      </a>
+      {% if not current_user.is_authenticated %}
+      <div class="pt-2 flex gap-2">
+        <a href="{{ url_for('login') }}" class="flex-1 py-2 text-center text-sm font-semibold rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200">Log in</a>
+        <a href="{{ url_for('signup') }}" class="flex-1 py-2 text-center text-sm font-semibold rounded-xl bg-rose-600 text-white">Sign up</a>
+      </div>
+      {% endif %}
+    </div>
+  </header>
+
+  <!-- Flash Messages Toast System -->
+  <div id="toast-container" class="fixed top-20 right-4 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-auto">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <script>
+            document.addEventListener('DOMContentLoaded', () => {
+              const catMap = {
+                'danger': 'error',
+                'warning': 'warning',
+                'success': 'success',
+                'info': 'info'
+              };
+              showToast("{{ message }}", catMap["{{ category }}"] || 'info');
+            });
+          </script>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+  </div>
+
+  <!-- Main Content Body -->
+  <main class="flex-1">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Floating Red Emergency Request Button (desktop & tablet) -->
+  <aside class="fixed bottom-6 right-6 z-40 hidden sm:block">
+    <a href="{{ url_for('new_emergency_request') }}" class="emergency-btn-pulse flex items-center gap-2.5 px-5 py-3.5 rounded-full bg-rose-600 hover:bg-rose-700 text-white font-bold text-sm shadow-xl active:scale-95 transition-all group">
+      <div class="w-3 h-3 rounded-full bg-white animate-ping"></div>
+      <i data-lucide="alert-circle" class="w-5 h-5 group-hover:rotate-12 transition-transform"></i>
+      <span>Emergency Request</span>
+    </a>
+  </aside>
+
+  <!-- Mobile Bottom Navigation Bar -->
+  <nav class="sm:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-[#0F172A]/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 flex items-center justify-around py-2 px-1 shadow-lg">
+    <a href="{{ url_for('index') }}" class="flex flex-col items-center gap-1 text-[10px] font-semibold text-slate-600 dark:text-slate-400 hover:text-rose-600">
+      <i data-lucide="home" class="w-5 h-5"></i>
+      <span>Home</span>
+    </a>
+    <a href="{{ url_for('search') }}" class="flex flex-col items-center gap-1 text-[10px] font-semibold text-slate-600 dark:text-slate-400 hover:text-rose-600">
+      <i data-lucide="search" class="w-5 h-5"></i>
+      <span>Search</span>
+    </a>
+    <a href="{{ url_for('new_emergency_request') }}" class="flex flex-col items-center -mt-5">
+      <div class="w-12 h-12 rounded-full bg-rose-600 text-white flex items-center justify-center shadow-lg shadow-rose-600/40 border-2 border-white dark:border-[#0F172A] active:scale-95 transition-transform">
+        <i data-lucide="plus" class="w-6 h-6 stroke-[2.5]"></i>
+      </div>
+      <span class="text-[10px] font-bold text-rose-600 mt-0.5">Emergency</span>
+    </a>
+    <a href="{{ url_for('compatibility') }}" class="flex flex-col items-center gap-1 text-[10px] font-semibold text-slate-600 dark:text-slate-400 hover:text-rose-600">
+      <i data-lucide="activity" class="w-5 h-5"></i>
+      <span>Match</span>
+    </a>
+    <a href="{{ url_for('dashboard') if current_user.is_authenticated else url_for('login') }}" class="flex flex-col items-center gap-1 text-[10px] font-semibold text-slate-600 dark:text-slate-400 hover:text-rose-600">
+      <i data-lucide="user" class="w-5 h-5"></i>
+      <span>Profile</span>
+    </a>
+  </nav>
+
+  <!-- Modern Navy Footer -->
+  <footer class="bg-slate-900 text-slate-300 pt-16 pb-24 sm:pb-16 border-t border-slate-800 mt-20">
+    <div class="max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-10 pb-12 border-b border-slate-800">
+        
+        <!-- Col 1: Brand Info -->
+        <div class="md:col-span-1">
+          <div class="flex items-center gap-2.5 mb-4">
+            <div class="w-9 h-9 rounded-xl bg-rose-600 flex items-center justify-center text-white shadow-md shadow-rose-600/30">
+              <i data-lucide="droplet" class="w-5 h-5 fill-white stroke-white"></i>
+            </div>
+            <span class="text-xl font-bold font-heading text-white">RaktSetu</span>
+          </div>
+          <p class="text-xs text-slate-400 leading-relaxed mb-4">
+            Empowering citizens and critical healthcare units with instantaneous, verified blood donor matching across India.
+          </p>
+          <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-rose-950/60 border border-rose-800/60 text-rose-400 text-xs font-semibold">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            24/7 National Emergency Support
+          </div>
+        </div>
+
+        <!-- Col 2: Quick Links -->
+        <div>
+          <h4 class="text-sm font-bold uppercase tracking-wider text-white font-heading mb-4">Platform</h4>
+          <ul class="space-y-2.5 text-xs">
+            <li><a href="{{ url_for('search') }}" class="hover:text-rose-400 transition-colors">Find Blood Donors</a></li>
+            <li><a href="{{ url_for('new_emergency_request') }}" class="hover:text-rose-400 transition-colors">Post Emergency Request</a></li>
+            <li><a href="{{ url_for('compatibility') }}" class="hover:text-rose-400 transition-colors">Blood Compatibility Matrix</a></li>
+            <li><a href="{{ url_for('about') }}" class="hover:text-rose-400 transition-colors">90-Day Donation Guidelines</a></li>
+          </ul>
+        </div>
+
+        <!-- Col 3: Blood Groups Quick Search -->
+        <div>
+          <h4 class="text-sm font-bold uppercase tracking-wider text-white font-heading mb-4">Popular Blood Groups</h4>
+          <div class="grid grid-cols-4 gap-2 text-xs font-bold text-center">
+            {% for bg in BLOOD_GROUPS %}
+            <a href="{{ url_for('search', blood_group=bg) }}" class="py-1.5 px-2 rounded-lg bg-slate-800 hover:bg-rose-600 hover:text-white transition-colors text-slate-300">
+              {{ bg }}
+            </a>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- Col 4: Emergency Contacts & Mission -->
+        <div>
+          <h4 class="text-sm font-bold uppercase tracking-wider text-white font-heading mb-4">Emergency Hotline</h4>
+          <p class="text-xs text-slate-400 mb-3">For critical urgent coordination, reach the national blood helpline:</p>
+          <div class="p-3 rounded-xl bg-slate-800/80 border border-slate-700/60 mb-3">
+            <p class="text-[10px] text-slate-400 font-semibold uppercase">National Helpline</p>
+            <p class="text-base font-extrabold text-white font-heading">104 / 108 (India)</p>
+          </div>
+          <p class="text-[11px] text-slate-500 italic">"Donate blood, save lives. Every drop counts."</p>
+        </div>
+
+      </div>
+
+      <!-- Bottom bar -->
+      <div class="pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-4">
+        <p>&copy; 2026 RaktSetu / RaktAnsh Network. Production Quality Demo System.</p>
+        <div class="flex items-center gap-6">
+          <span class="text-slate-400">Built with Python Flask, Tailwind & Leaflet</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Main JavaScript Suite -->
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  {% block extra_scripts %}{% endblock %}
+</body>
+</html>

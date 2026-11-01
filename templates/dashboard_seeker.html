@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block title %}Seeker Dashboard | RaktSetu{% endblock %}
+
+{% block content %}
+<div class="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
+  <!-- Header Card -->
+  <div class="bg-white dark:bg-[#111A2E] rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-xl mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+    <div>
+      <h1 class="text-2xl sm:text-3xl font-extrabold font-heading text-slate-900 dark:text-white">
+        My Blood Requests
+      </h1>
+      <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+        Monitor real-time donor responses, hospital coordinates, and fulfillment statuses.
+      </p>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <a href="{{ url_for('search') }}" class="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold hover:bg-slate-50 dark:hover:bg-slate-800">
+        Search Donors
+      </a>
+      <a href="{{ url_for('new_emergency_request') }}" class="px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-md shadow-rose-600/25 flex items-center gap-1.5">
+        <i data-lucide="plus" class="w-4 h-4"></i>
+        <span>New Request</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Requests List -->
+  <div class="space-y-4">
+    {% if requests %}
+      {% for req in requests %}
+      <div class="bg-white dark:bg-[#111A2E] rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm card-hover flex flex-col md:flex-row md:items-center justify-between gap-6">
+        
+        <div>
+          <div class="flex items-center gap-2 mb-2 flex-wrap">
+            <span class="blood-badge text-xs px-2.5 py-0.5">{{ req.blood_group }}</span>
+            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider text-white {% if req.status == 'Open' %}bg-amber-500{% elif req.status == 'Accepted' %}bg-rose-600{% else %}bg-emerald-600{% endif %}">
+              {{ req.status }}
+            </span>
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase {% if req.urgency == 'Critical' %}bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300{% else %}bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300{% endif %}">
+              {{ req.urgency }} Urgency
+            </span>
+            <span class="text-xs text-slate-400">&bull; Created {{ req.created_at.strftime('%d %b %Y, %H:%M') }}</span>
+          </div>
+
+          <h3 class="text-lg font-bold font-heading text-slate-900 dark:text-white">{{ req.patient_name }}</h3>
+          
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-1.5">
+            <i data-lucide="building-2" class="w-3.5 h-3.5"></i>
+            {{ req.hospital_name }}, {{ req.city }} &bull; <strong>{{ req.units_needed }} Unit(s)</strong>
+          </p>
+
+          <p class="text-xs text-slate-600 dark:text-slate-300 mt-2">
+            Attendant: <strong>{{ req.contact_person }}</strong> ({{ req.contact_phone }})
+          </p>
+        </div>
+
+        <div class="flex flex-col sm:flex-row md:flex-col items-start md:items-end justify-between gap-3 pt-3 md:pt-0 border-t md:border-t-0 border-slate-100 dark:border-slate-800">
+          <div class="text-right hidden md:block">
+            <span class="text-xs font-bold text-rose-600 dark:text-rose-400 flex items-center gap-1">
+              <i data-lucide="users" class="w-4 h-4"></i>
+              {{ req.responses.count() }} Responding Donors
+            </span>
+          </div>
+
+          <a href="{{ url_for('request_detail', request_id=req.id) }}" class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 text-white font-bold text-xs transition-colors text-center">
+            View Live Tracker &rarr;
+          </a>
+        </div>
+
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="bg-white dark:bg-[#111A2E] rounded-3xl p-12 text-center border border-slate-200 dark:border-slate-800">
+        <div class="w-16 h-16 rounded-3xl bg-rose-50 dark:bg-rose-950 text-rose-600 flex items-center justify-center mx-auto mb-4">
+          <i data-lucide="file-question" class="w-8 h-8"></i>
+        </div>
+        <h3 class="font-bold text-base font-heading text-slate-900 dark:text-white mb-1">No Active Blood Requests</h3>
+        <p class="text-xs text-slate-400 max-w-sm mx-auto mb-6">
+          If someone is in need of blood transfusion or replacement units, create a request to alert verified donors.
+        </p>
+        <a href="{{ url_for('new_emergency_request') }}" class="px-6 py-3 rounded-xl bg-rose-600 text-white font-bold text-xs shadow-md shadow-rose-600/25">
+          Create Emergency Request
+        </a>
+      </div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+
+{% block title %}About & 90-Day Donor Safety Guidelines | RaktSetu{% endblock %}
+
+{% block content %}
+<div class="max-w-[1000px] mx-auto px-4 sm:px-6 lg:px-8 py-12">
+  
+  <!-- Header -->
+  <div class="text-center max-w-2xl mx-auto mb-12">
+    <span class="text-xs font-bold uppercase tracking-wider text-rose-600 dark:text-rose-400 mb-2 block">Our Mission & Standards</span>
+    <h1 class="text-3xl sm:text-4xl font-extrabold font-heading text-slate-900 dark:text-white">Built for Patient Safety and Donor Well-being</h1>
+    <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-2">
+      RaktSetu (and the RaktAnsh voluntary network) combines lightning-fast peer matching with strict medical safety protocols.
+    </p>
+  </div>
+
+  <!-- The 90-Day Safety Rule Spotlight Card -->
+  <div class="bg-gradient-to-br from-slate-900 via-[#3B0712] to-[#7F1D1D] rounded-3xl p-8 sm:p-10 text-white shadow-xl mb-12 relative overflow-hidden">
+    <div class="max-w-2xl relative z-10">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-500/30 border border-rose-400/40 text-rose-200 text-xs font-bold mb-4">
+        <i data-lucide="shield" class="w-4 h-4"></i>
+        <span>Clinical Rule 90: Biological Recovery</span>
+      </div>
+      <h2 class="text-2xl sm:text-3xl font-extrabold font-heading mb-3">Why 90 Days Between Donations?</h2>
+      <p class="text-xs sm:text-sm text-rose-100 leading-relaxed mb-6">
+        When an adult donates 350-450ml of whole blood, the body replenishes fluid plasma volume within 24 to 48 hours. However, your bone marrow requires approximately 8 to 12 weeks to synthesize replacement red blood cells and restore iron ferritin stores to safe baseline levels.
+      </p>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="p-3.5 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20">
+          <p class="text-xl font-extrabold font-heading text-rose-300">24-48 Hours</p>
+          <p class="text-[11px] text-white/80 mt-0.5">Blood plasma fluid volume fully rehydrated</p>
+        </div>
+        <div class="p-3.5 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20">
+          <p class="text-xl font-extrabold font-heading text-rose-300">56-84 Days</p>
+          <p class="text-[11px] text-white/80 mt-0.5">RBCs & hemoglobin levels completely regenerated</p>
+        </div>
+        <div class="p-3.5 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20">
+          <p class="text-xl font-extrabold font-heading text-rose-300">12 Weeks</p>
+          <p class="text-[11px] text-white/80 mt-0.5">Recommended minimum interval for male & female donors</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Donor Eligibility Checklist -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+    
+    <!-- Who CAN Donate -->
+    <div class="bg-white dark:bg-[#111A2E] rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-sm">
+      <div class="flex items-center gap-3 mb-6">
+        <div class="w-10 h-10 rounded-2xl bg-emerald-50 dark:bg-emerald-950 text-emerald-600 flex items-center justify-center font-bold">
+          <i data-lucide="check" class="w-5 h-5 stroke-[3]"></i>
+        </div>
+        <div>
+          <h3 class="font-bold text-base font-heading text-slate-900 dark:text-white">Eligible Donor Criteria</h3>
+          <p class="text-xs text-slate-400">Standard criteria approved by National Blood Transfusion Council</p>
+        </div>
+      </div>
+
+      <ul class="space-y-3 text-xs text-slate-600 dark:text-slate-300">
+        <li class="flex items-start gap-2.5">
+          <span class="w-4 h-4 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-[10px] font-bold mt-0.5">&check;</span>
+          <span><strong>Age:</strong> Between 18 and 65 years old.</span>
+        </li>
+        <li class="flex items-start gap-2.5">
+          <span class="w-4 h-4 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-[10px] font-bold mt-0.5">&check;</span>
+          <span><strong>Weight:</strong> Minimum 45 kg (whole blood 350ml) or 55 kg (450ml).</span>
+        </li>
+        <li class="flex items-start gap-2.5">
+          <span class="w-4 h-4 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-[10px] font-bold mt-0.5">&check;</span>
+          <span><strong>Hemoglobin:</strong> Not less than 12.5 g/dL measured at the blood bank.</span>
+        </li>
+        <li class="flex items-start gap-2.5">
+          <span class="w-4 h-4 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-[10px] font-bold mt-0.5">&check;</span>
+          <span><strong>Vitals:</strong> Normal pulse (60-100 bpm) and blood pressure.</span>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Who Should Defer -->
+    <div class="bg-white dark:bg-[#111A2E] rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-sm">
+      <div class="flex items-center gap-3 mb-6">
+        <div class="w-10 h-10 rounded-2xl bg-amber-50 dark:bg-amber-950 text-amber-600 flex items-center justify-center font-bold">
+          <i data-lucide="clock" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <h3 class="font-bold text-base font-heading text-slate-900 dark:text-white">Temporary Deferrals</h3>
+          <p class="text-xs text-slate-400">Circumstances where you should postpone donation</p>
+        </div>
+      </div>
+
+      <ul class="space-y-3 text-xs text-slate-600 dark:text-slate-300">
+        <li class="flex items-start gap-2.5">
+          <span class="w-4 h-4 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center text-[10px] font-bold mt-0.5">!</span>
+          <span><strong>Tattoos or Body Piercings:</strong> Defer for 6 months from the date of procedure.</span>
+        </li>
+        <li class="flex items-start gap-2.5">
+          <span class="w-4 h-4 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center text-[10px] font-bold mt-0.5">!</span>
+          <span><strong>Major Surgery:</strong> Defer for 6-12 months until full recovery.</span>
+        </li>
+        <li class="flex items-start gap-2.5">
+          <span class="w-4 h-4 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center text-[10px] font-bold mt-0.5">!</span>
+          <span><strong>Antibiotics / Infection:</strong> Defer for 7 days post completion of antibiotics.</span>
+        </li>
+        <li class="flex items-start gap-2.5">
+          <span class="w-4 h-4 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center text-[10px] font-bold mt-0.5">!</span>
+          <span><strong>Alcohol Consumption:</strong> Avoid alcohol for 24 hours prior to donation.</span>
+        </li>
+      </ul>
+    </div>
+
+  </div>
+
+  <!-- FAQ Accordion -->
+  <div class="bg-white dark:bg-[#111A2E] rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-sm" x-data="{ openFaq: 1 }">
+    <h3 class="text-xl font-bold font-heading text-slate-900 dark:text-white mb-6">Frequently Asked Questions</h3>
+
+    <div class="space-y-3 text-xs">
+      
+      <!-- FAQ 1 -->
+      <div class="border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden">
+        <button type="button" @click="openFaq = (openFaq === 1 ? null : 1)" class="w-full p-4 text-left font-bold text-slate-900 dark:text-white flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800/50">
+          <span>Is blood donation painful or risky?</span>
+          <i data-lucide="chevron-down" class="w-4 h-4 transition-transform" :class="openFaq === 1 ? 'rotate-180' : ''"></i>
+        </button>
+        <div x-show="openFaq === 1" class="p-4 pt-0 text-slate-500 dark:text-slate-400 leading-relaxed border-t border-slate-100 dark:border-slate-800">
+          Not at all. You feel only a minor pinch for one second when the sterile single-use needle is inserted. All equipment is 100% sterile and disposed of immediately. You cannot contract any illness from donating blood.
+        </div>
+      </div>
+
+      <!-- FAQ 2 -->
+      <div class="border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden">
+        <button type="button" @click="openFaq = (openFaq === 2 ? null : 2)" class="w-full p-4 text-left font-bold text-slate-900 dark:text-white flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800/50">
+          <span>How long does the donation take?</span>
+          <i data-lucide="chevron-down" class="w-4 h-4 transition-transform" :class="openFaq === 2 ? 'rotate-180' : ''"></i>
+        </button>
+        <div x-show="openFaq === 2" class="p-4 pt-0 text-slate-500 dark:text-slate-400 leading-relaxed border-t border-slate-100 dark:border-slate-800" style="display: none;">
+          The actual blood collection takes only 8 to 10 minutes. The whole process, including basic vitals check, registration, and post-donation refreshment rest, takes about 30 to 40 minutes.
+        </div>
+      </div>
+
+      <!-- FAQ 3 -->
+      <div class="border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden">
+        <button type="button" @click="openFaq = (openFaq === 3 ? null : 3)" class="w-full p-4 text-left font-bold text-slate-900 dark:text-white flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800/50">
+          <span>Does RaktSetu charge any fee?</span>
+          <i data-lucide="chevron-down" class="w-4 h-4 transition-transform" :class="openFaq === 3 ? 'rotate-180' : ''"></i>
+        </button>
+        <div x-show="openFaq === 3" class="p-4 pt-0 text-slate-500 dark:text-slate-400 leading-relaxed border-t border-slate-100 dark:border-slate-800" style="display: none;">
+          No. RaktSetu is a 100% voluntary, free-of-cost civic tech initiative. Commercial buying or selling of human blood is strictly illegal under Section 27 of the Drugs and Cosmetics Act (India).
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+{% endblock %}
